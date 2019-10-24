@@ -7,8 +7,6 @@ Metadata:
     - Resource Names
     - autoscaler
     - IOPS
-    - EfsStorageClass
-    - Lambda
     - maxIO
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -41,10 +39,7 @@ Metadata:
           default: Optional Kubernetes add-ins
         Parameters:
           - ClusterAutoScaler
-          - EfsStorageClass
-          - EfsPerformanceMode
-          - EfsThroughputMode
-          - EfsProvisionedThroughputInMibps
+          
       - Label:
           default: AWS Quick Start configuration
         Parameters:
@@ -88,18 +83,10 @@ Metadata:
         default: Additional EKS admin ARNs
       KubernetesVersion:
         default: Kubernetes version
-      LambdaZipsBucketName:
-        default: Lambda zips bucket name
+      
       ClusterAutoScaler:
         default: Cluster autoscaler
-      EfsStorageClass:
-        default: EFS storage class
-      EfsPerformanceMode:
-        default: EFS performance mode
-      EfsThroughputMode:
-        default: EFS throughput mode
-      EfsProvisionedThroughputInMibps:
-        default: EFS provisioned throughput in Mibps
+      
 Parameters:
   AvailabilityZones:
     Description: The list of Availability Zones to use for the subnets in the VPC. Three
@@ -287,35 +274,13 @@ Parameters:
     AllowedValues: [ "1.13", "1.12", "1.11" ]
     Default: "1.13"
     Description: The Kubernetes control plane version.
-  LambdaZipsBucketName:
-    Description: '[OPTIONAL] The name of the S3 bucket where the Lambda zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
-    Type: String
-    Default: ''
+ 
   ClusterAutoScaler:
     Type: String
     AllowedValues: [ Enabled, Disabled ]
     Default: Disabled
     Description: Choose Enabled to enable Kubernetes cluster autoscaler.
-  EfsStorageClass:
-    Type: String
-    AllowedValues: [ Enabled, Disabled ]
-    Default: Disabled
-    Description: Choose Enabled to enable EFS storage class, which will create the required EFS volume.
-  EfsPerformanceMode:
-    Type: String
-    AllowedValues: [ generalPurpose, maxIO ]
-    Default: generalPurpose
-    Description: Choose maxIO mode to provide greater IOPS with an increased latency. Only has an effect when EfsStorageClass is enabled.
-  EfsThroughputMode:
-    Type: String
-    AllowedValues: [ bursting, provisioned ]
-    Default: bursting
-    Description: Choose provisioned for throughput that is not dependent on the amount of data stored in the file system. Only has an effect when EfsStorageClass is enabled.
-  EfsProvisionedThroughputInMibps:
-    Type: Number
-    MinValue: 0
-    Default: 0
-    Description: Set to 0 if EfsThroughputMode is set to bursting. Only has an effect when EfsStorageClass is enabled.
+ 
 Rules:
   EKSSupport:
     Assertions:
@@ -371,17 +336,14 @@ Resources:
         MaxNumberOfNodes: !Ref NumberOfNodes
         NodeGroupName: !Ref NodeGroupName
         NodeVolumeSize: !Ref NodeVolumeSize
-        LambdaZipsBucketName: !Ref LambdaZipsBucketName
+       
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         AdditionalEKSAdminArns: !Join [ ",", !Ref AdditionalEKSAdminArns ]
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         KubernetesVersion: !Ref KubernetesVersion
         ProvisionClusterAutoScaler: !Ref ClusterAutoScaler
-        EfsStorageClass: !Ref EfsStorageClass
-        EfsPerformanceMode: !Ref EfsPerformanceMode
-        EfsThroughputMode: !Ref EfsThroughputMode
-        EfsProvisionedThroughputInMibps: !Ref EfsProvisionedThroughputInMibps
+        
 Outputs:
   KubeConfigPath:
     Value: !GetAtt EKSStack.Outputs.KubeConfigPath
